@@ -10,6 +10,7 @@ using namespace std;
 vector <char *> splitUserInput(string input);
 void parseUserInput(vector <char *> vec);
 void setPathHome(vector <char *> vec);
+void setWorkingDir(vector <char *> vec);
 
 int main (const int argc, char *argv[], char *envp[]){
 
@@ -19,7 +20,7 @@ int main (const int argc, char *argv[], char *envp[]){
 
 //	cout << "Quash is a shell. NO WARRANTY." << endl << "NONE WHATSOEVER." << endl;
 
-	printf("Quite a Shell, version 0.1:\n");
+	printf("Quite a Shell, version 0.2:\n");
 	char *envVar;
 
 	envVar = getenv("PATH");
@@ -41,7 +42,7 @@ int main (const int argc, char *argv[], char *envp[]){
 
 		parseUserInput(cmdVec);
 
-		cout << "\033[1;31m>\033[0m";
+		cout << "\033[1;31mquash " << getcwd(NULL, 0) << ">\033[0m";
 		getline(cin, userInput);
 		loopNum++;
 	}
@@ -77,6 +78,11 @@ void parseUserInput(vector <char *> vec){
 
 	if ((strcmp(vec[0], "path") == 0) || (strcmp(vec[0], "home") == 0)){
 		setPathHome(vec);
+		return;
+	}
+
+	if (strcmp(vec[0], "cd") == 0){
+		setWorkingDir(vec);
 		return;
 	}
 
@@ -118,4 +124,34 @@ void setPathHome(vector <char *> vec){
 		}
 		cout << "Home set to: " << getenv("HOME") << endl;
 	}
+}
+
+void setWorkingDir(vector <char *> vec){
+	if(vec.size() > 2){
+		cout << "ERROR: " << vec[0] << " only takes one argument." << endl;
+		return;
+	}
+
+	if(vec.size() == 1){
+		vec.push_back(getenv("HOME"));
+
+		if ((chdir(vec[1])) == -1){
+			fprintf(stderr, "Error occurred on cd to HOME. Error #%d\n", errno);
+			return;
+		}
+		return;
+	}
+
+	//char dir[256]; 
+	//getcwd(dir, 256);
+
+	//strcat(dir, "/");
+	//strcat(dir, vec[1]);
+
+	//cout << dir << endl;
+	if ((chdir(vec[1])) == -1){
+		fprintf(stderr, "Error occurred on cd.\n You tried to go to %s\n Error #%d\n", vec[1], errno);
+		return;
+	}
+	return;
 }
