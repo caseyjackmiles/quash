@@ -6,13 +6,13 @@
 #include <vector>
 using namespace std; 
 
-void parseUserInput(string input);
+vector <char *> splitUserInput(string input);
 
 int main (const int argc, char *argv[], char *envp[]){
 
 	string userInput = "";
 	int loopNum = 0;
-	vector <string> cmdVec;
+	vector <char *> cmdVec;
 
 //	cout << "Quash is a shell. NO WARRANTY." << endl << "NONE WHATSOEVER." << endl;
 
@@ -30,9 +30,13 @@ int main (const int argc, char *argv[], char *envp[]){
 
 	while ((userInput != "exit") && (userInput != "quit") && (userInput != "q")){
 
-		if (loopNum > 0)
-			parseUserInput(userInput);
+		cmdVec = splitUserInput(userInput);
 
+		for(int i=0; i<cmdVec.size(); i++){
+			printf("%d: %s\n", i+1, cmdVec.at(i));
+		}
+
+		cout << ">";
 		getline(cin, userInput);
 		loopNum++;
 	}
@@ -42,6 +46,19 @@ int main (const int argc, char *argv[], char *envp[]){
 
 }
 
-void parseUserInput(string input){
-	cout << "You're parsing " << input << endl;
+vector <char *> splitUserInput(string i){
+
+	//Clear all elements from the command vector
+	vector <char *> cmdVec;
+
+	char *input = (char *)i.c_str();
+
+	char *tokens = strtok(input, " ");
+	while (tokens != NULL){
+	//	cout << tokens << endl;
+		cmdVec.push_back(tokens);
+		tokens = strtok(NULL, " ");
+	}
+
+	return cmdVec;
 }
