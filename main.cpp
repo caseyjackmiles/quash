@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <errno.h>
+#include <sys/wait.h>
 #include <vector>
 using namespace std; 
 
@@ -11,15 +12,23 @@ vector <char *> splitUserInput(string input);
 void parseUserInput(vector <char *> vec);
 void setPathHome(vector <char *> vec);
 void setWorkingDir(vector <char *> vec);
+void displayJobs();
+void parseCommand(vector <char *> vec, char *env[]);
+void executeCommand(vector <char *> vec, bool redirIn, string inFile, bool redirOut, string outFile, bool usePipe, int firstCmdEnd, int secondCmdEnd, bool runBackground, char *env[]);
+
+#include "command.cpp"
 
 int main (const int argc, char *argv[], char *envp[]){
+
+	extern char **environ;
 
 	string userInput = "";
 	int loopNum = 0;
 	vector <char *> cmdVec;
 
-//	cout << "Quash is a shell. NO WARRANTY." << endl << "NONE WHATSOEVER." << endl;
-
+//*************************************************
+//  Print initial environment variables
+//*************************************************
 	printf("Quite a Shell, version 0.2:\n");
 	char *envVar;
 
@@ -29,6 +38,8 @@ int main (const int argc, char *argv[], char *envp[]){
 	cout << "HOME: " << envVar << endl;
 	envVar = getcwd(NULL, 0);
 	cout << "CUR_DIR: " << envVar << endl << endl;
+
+//*************************************************
 	
 
 
@@ -42,7 +53,7 @@ int main (const int argc, char *argv[], char *envp[]){
 
 		parseUserInput(cmdVec);
 
-		cout << "\033[1;31mquash " << getcwd(NULL, 0) << ">\033[0m";
+		cout << "\n\033[1;31m" << getcwd(NULL, 0) << ">\033[0m";
 		getline(cin, userInput);
 		loopNum++;
 	}
@@ -76,15 +87,25 @@ void parseUserInput(vector <char *> vec){
 		return;
 	}
 
+	//Check for 'path' or 'home' commands
 	if ((strcmp(vec[0], "path") == 0) || (strcmp(vec[0], "home") == 0)){
 		setPathHome(vec);
 		return;
 	}
 
+	//Check for 'cd' command
 	if (strcmp(vec[0], "cd") == 0){
 		setWorkingDir(vec);
 		return;
 	}
+
+	//Check for 'jobs' command
+	if (strcmp(vec[0], "jobs") == 0){
+		displayJobs();
+		return;
+	}
+
+	parseCommand(vec, environ);
 
 	return;
 }
@@ -142,16 +163,13 @@ void setWorkingDir(vector <char *> vec){
 		return;
 	}
 
-	//char dir[256]; 
-	//getcwd(dir, 256);
-
-	//strcat(dir, "/");
-	//strcat(dir, vec[1]);
-
-	//cout << dir << endl;
 	if ((chdir(vec[1])) == -1){
 		fprintf(stderr, "Error occurred on cd.\n You tried to go to %s\n Error #%d\n", vec[1], errno);
 		return;
 	}
 	return;
+}
+
+void displayJobs(){
+	cout << "'Jobs' feature not yet implemented." << endl;
 }
