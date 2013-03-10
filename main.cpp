@@ -13,14 +13,13 @@ void parseUserInput(vector <char *> vec);
 void setPathHome(vector <char *> vec);
 void setWorkingDir(vector <char *> vec);
 void displayJobs();
-void parseCommand(vector <char *> vec, char *env[]);
-void executeCommand(vector <char *> vec, bool redirIn, string inFile, bool redirOut, string outFile, bool usePipe, int firstCmdEnd, int secondCmdEnd, bool runBackground, char *env[]);
+void parseCommand(vector <char *> vec);
+int executeCommand(vector <char *> vec, bool redirIn, string inFile, bool redirOut, string outFile, bool usePipe, int firstCmdEnd, int secondCmdEnd, bool runBackground);
 
 #include "command.cpp"
 
 int main (const int argc, char *argv[], char *envp[]){
 
-	extern char **environ;
 
 	string userInput = "";
 	int loopNum = 0;
@@ -29,15 +28,17 @@ int main (const int argc, char *argv[], char *envp[]){
 //*************************************************
 //  Print initial environment variables
 //*************************************************
-	printf("Quite a Shell, version 0.2:\n");
+	printf("Quite a Shell, version 0.4:\n");
 	char *envVar;
 
-	envVar = getenv("PATH");
-	cout << "PATH: " << envVar << endl;
-	envVar = getenv("HOME");
-	cout << "HOME: " << envVar << endl;
-	envVar = getcwd(NULL, 0);
-	cout << "CUR_DIR: " << envVar << endl << endl;
+	cout << "PATH: " << getenv("PATH") << endl;
+	cout << "HOME: " << getenv("HOME") << endl;
+	cout << "CUR_DIR: " << getcwd(NULL, 0) << endl << endl;
+
+	//for(int i=0; environ[i]!=NULL; i++){
+	//	cout << environ[i] << endl;
+	//	cout << "****************************************************" << endl;
+	//}
 
 //*************************************************
 	
@@ -53,7 +54,11 @@ int main (const int argc, char *argv[], char *envp[]){
 
 		parseUserInput(cmdVec);
 
-		cout << "\n\033[1;31m" << getcwd(NULL, 0) << ">\033[0m";
+		cout << "\033[1;31m" << getcwd(NULL, 0) << ">\033[0m";
+
+		//empty the vector?
+		cmdVec.clear();
+
 		getline(cin, userInput);
 		loopNum++;
 	}
@@ -105,7 +110,7 @@ void parseUserInput(vector <char *> vec){
 		return;
 	}
 
-	parseCommand(vec, environ);
+	parseCommand(vec);
 
 	return;
 }
@@ -163,8 +168,8 @@ void setWorkingDir(vector <char *> vec){
 		return;
 	}
 
-	if ((chdir(vec[1])) == -1){
-		fprintf(stderr, "Error occurred on cd.\n You tried to go to %s\n Error #%d\n", vec[1], errno);
+	if((chdir(vec[1])) == -1){
+		fprintf(stderr, "Error occurred on cd to %s. Error #%d\n", vec[1], errno);
 		return;
 	}
 	return;

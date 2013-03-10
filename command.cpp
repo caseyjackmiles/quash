@@ -1,4 +1,4 @@
-void parseCommand(vector <char *> vec, char *env[]){
+void parseCommand(vector <char *> vec){
 
 	bool redirIn = false;
 	bool redirOut = false;
@@ -37,42 +37,31 @@ void parseCommand(vector <char *> vec, char *env[]){
 
 	//We should try to have all the parameters and stuff set by this point.
 	//This function will execute the requested command.
-	executeCommand(vec, redirIn, inFile, redirOut, outFile, usePipe, firstCmdEnd, secondCmdEnd, runBackground, env);
+	int dummyint = executeCommand(vec, redirIn, inFile, redirOut, outFile, usePipe, firstCmdEnd, secondCmdEnd, runBackground);
 }
 
-void executeCommand(vector <char *> vec, bool redirIn, string inFile, bool redirOut, string outFile, bool usePipe, int firstCmdEnd, int secondCmdEnd, bool runBackground, char *env[]){
+int executeCommand(vector <char *> vec, bool redirIn, string inFile, bool redirOut, string outFile, bool usePipe, int firstCmdEnd, int secondCmdEnd, bool runBackground){
 
 	int status;
 
 	int pid1, pid2;
 
+	vec.push_back(NULL);
+
 	pid1 = fork();
 	if(pid1 == 0){
 
-		//char *argbuf[256];
-		//bzero(argbuf, 256);
-
-		//build the buffer of commands to the program
-		//int i=1;
-		//while(i <= firstCmdEnd){
-		//	strcpy(argbuf[i], vec[i]);
-		//	i++;
-		//}
-		//strcpy(argbuf[i], (char *) NULL);
-
-		//char **argbuf = &vec[0];
-
-		//if((execvpe(argbuf[0], argbuf, env) < 0)){
-		if((execvpe(vec[0], &vec[0], env) < 0)){ 
+		//if((execvpe(vec[0], &vec[0], env) < 0)){ 
+		if((execvp(vec[0], &vec[0]) < 0)){
 			fprintf(stderr, "\nError while executing %s. Error #%d.\n", vec[0], errno);
-			return;
+			exit(EXIT_FAILURE);
 		}
 	}
 	//end child 1
 
-	if((waitpid(-1, &status, 0)) == -1){
+	if((waitpid(pid1, &status, 0)) == -1){
 		fprintf(stderr, "\nError on process '%s'. Error #%d.\n", vec[0], errno);
-		return;
+		return EXIT_FAILURE;
 	}
 
 
