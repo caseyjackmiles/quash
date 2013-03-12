@@ -20,7 +20,7 @@ void setPathHome(vector <char *> vec);
 void setWorkingDir(vector <char *> vec);
 void displayJobs();
 void parseCommand(vector <char *> vec);
-int executeCommand(vector <char *> vec, int fdin, int fdout);
+int executeCommand(vector <char *> cmd1, vector <char *> cmd2, string fdin, string fdout);
 
 #include "command.cpp"
 
