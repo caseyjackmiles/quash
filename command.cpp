@@ -106,11 +106,16 @@ int executeCommand(vector <char *> cmd1, vector <char *> cmd2, string fdin, stri
 
 	int status;
 	int pid1, pid2;
+	int pipefds[2];
 
 	bool usePipe = !cmd2.empty();
 
 	cmd1.push_back(NULL);
 	cmd2.push_back(NULL);
+
+	if (usePipe){
+		pipe(pipefds);
+	}
 
 	pid1 = fork();
 	if(pid1 == 0){
@@ -122,11 +127,28 @@ int executeCommand(vector <char *> cmd1, vector <char *> cmd2, string fdin, stri
 			close(in);
 		}
 
+		//BEFORE PIPING IMPLEMENTED
 		//REWRITE std_out to fdout
-		if(fdout != "1"){
-			int out = open(fdout.c_str(), O_WRONLY ^ O_CREAT, 00644);
-			dup2(out, 1);
-			close(out);
+		//if(fdout != "1"){
+		//	int out = open(fdout.c_str(), O_WRONLY ^ O_CREAT, 00644);
+		//	dup2(out, 1);
+		//	close(out);
+		//}
+
+		if(usePipe){		//Using a pipe, so redirect std_out to the write end of the pipe.
+			//Close read-end of pipe
+			//Process should read from fdin specified earlier
+			close(pipefds[0]);
+			dup2(pipefds[1], 1);
+			close(pipefds[1]);
+
+		}
+		else {				//No pipe, so redirect std_out to whatever's specified in fdout
+			if(fdout != "1"){
+				int out = open(fdout.c_str(), O_WRONLY ^ O_CREAT, 00644);
+				dup2(out, 1);
+				close(out);
+			}
 		}
 
 		if((execvp(cmd1[0], &cmd1[0]) < 0)){
@@ -135,18 +157,53 @@ int executeCommand(vector <char *> cmd1, vector <char *> cmd2, string fdin, stri
 		}
 	}
 	//end child 1
+	
+
+	if(usePipe)
+		pid2 = fork();
+
+	if(pid2 == 0){
+
+		//We know we're using a pipe at this point, so redirect
+		//process input to the read end of the pipe
+		close(pipefds[1]);
+		dup2(pipefds[0], 0);
+		close(pipefds[0]);
 
 
+		//Now check to see what we should output the results to:
+		//std_out or something specified in fdout
 
+		if(fdout != "1"){
+			int out = open(fdout.c_str(), O_WRONLY ^ O_CREAT, 00644);
+			dup2(out, 1);
+			close(out);
+		}
 
-
+		//Now execute the second command
+		if((execvp(cmd2[0], &cmd2[0]) < 0)){
+			fprintf(stderr, "\nError while executing %s. Error #%d.\n", cmd2[0], errno);
+			exit(EXIT_FAILURE);
+		}
+	}
+	//end child 2, if piped IE, THE PIPED CHILD
+	
 	//close(fdin);
 	//close(fdout);
+
+	//Close the unneeded pipes if we made them
+	if(usePipe){
+		close(pipefds[1]);
+		
+		if((waitpid(pid2, &status, 0)) == -1){
+			fprintf(stderr, "\nError on process '%s'. Error #%d.\n", cmd1[0], errno);
+			return EXIT_FAILURE;
+		}
+	}
 
 	if((waitpid(pid1, &status, 0)) == -1){
 		fprintf(stderr, "\nError on process '%s'. Error #%d.\n", cmd1[0], errno);
 		return EXIT_FAILURE;
 	}
-
 
 }

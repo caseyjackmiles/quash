@@ -34,7 +34,7 @@ int main (const int argc, char *argv[], char *envp[]){
 //*************************************************
 //  Print initial environment variables
 //*************************************************
-	printf("Quite a Shell, version 0.4:\n");
+	printf("Quite a Shell, version 0.6:\n");
 	char *envVar;
 
 	cout << "PATH: " << getenv("PATH") << endl;
