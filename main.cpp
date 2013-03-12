@@ -6,6 +6,12 @@
 #include <errno.h>
 #include <sys/wait.h>
 #include <vector>
+
+//included for IO redirection
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+
 using namespace std; 
 
 vector <char *> splitUserInput(string input);
@@ -14,7 +20,7 @@ void setPathHome(vector <char *> vec);
 void setWorkingDir(vector <char *> vec);
 void displayJobs();
 void parseCommand(vector <char *> vec);
-int executeCommand(vector <char *> vec, bool redirIn, string inFile, bool redirOut, string outFile, bool usePipe, int firstCmdEnd, int secondCmdEnd, bool runBackground);
+int executeCommand(vector <char *> vec, int fdin, int fdout);
 
 #include "command.cpp"
 
