@@ -1,3 +1,14 @@
+#########################
+ #
+ # Casey Miles
+ # EECS 678
+ # Project 1 - Quash Shell
+ # Wed., March 13, 2013
+ #
+ # Makefile
+ #
+########################/
+
 # Create executable
 
 all: quash

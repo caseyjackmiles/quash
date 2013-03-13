@@ -1,7 +1,23 @@
-Quite a Shell
-=============
+Quite a Shell (Quash)
+=====================
 
 For EECS 678.
+
+How to use Quash
+----------------
+
+In your favorite shell, navigate to the quash folder and enter `make`. After compilation finishes, Quash can be invoked by typing `./quash`.
+
+###### Some handy commands and features
+* Execute commands by typing them at Quash's user prompt (e.g., `ls -lAh`)
+* Set HOME directory by typing `home <directory>`. Display the current HOME variable with the `home` command.
+* Set PATH directories by typing `path <directory1>:<directory2>...`. Display the current PATH with the `path` command.
+* Create a pipe between two commands like this: `command1 | command2`.
+* Redirect output of a command (or a pipe) by typing `command1 > file`.
+* Redirect input to a command or pipe by typing `< file command` *Must be typed at the beginning of a command.*
+* Execute a command in the background by adding `&` to the very end of the command.
+* Quash can perform a batch of jobs saved in a file. Invoke Quash from a shell with `./quash < commands.txt`.
+* Quit Quash with `quit`, `exit`, or `q` (if you must).
 
 Version History
 ---------------
@@ -12,6 +28,7 @@ Version History
 * 0.4 Got program execution to function properly, with addition of `vec.pushback(NULL)` to null-terminate the argument variables. Also removed unnecessary environment variables, and changed execution from `execvpe` to `execvp`.
 * 0.5 I/O redirection functionality provided via the '<' and '>' characters. See bug/issue 1 below.
 * 0.6 Added pipe functionality, allowing two programs to be piped together with the use of the '|' character.
+* 0.7 Added background processing functionality and the ability to send Quash a batch of commands by invoking '$ quash < commands.txt'.
 
 
 Bugs / Issues
